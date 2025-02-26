@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Building Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        #data-container {
+            margin-top: 20px;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Building Dashboard</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Zone Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="zone-form">
+                            <div class="mb-3">
+                                <label for="zone-select" class="form-label">Select Zone</label>
+                                <select class="form-select" id="zone-select" name="zone_id" required>
+                                    <option value="">Choose a zone...</option>
+                                    {% for zone in zones %}
+                                    <option value="{{ zone[0] }}">{{ zone[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Recent Data</button>
+                        </form>
+                        
+                        <div class="loading" id="loading">
+                            <div class="d-flex align-items-center">
+                                <strong>Loading...</strong>
+                                <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="data-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('zone-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const zoneId = document.getElementById('zone-select').value;
+            if (!zoneId) {
+                alert('Please select a zone');
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('data-container').innerHTML = '';
+            
+            // Send request
+            const formData = new FormData();
+            formData.append('zone_id', zoneId);
+            
+            fetch('/zone_data', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                
+                // Display data
+                let html = `<h4 class="mt-4">Data for ${data.zone_name}</h4>`;
+                
+                if (data.measurements.length === 0) {
+                    html += '<p>No measurements found for this zone.</p>';
+                } else {
+                    html += `
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Type</th>
+                                <th>Value</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                    
+                    data.measurements.forEach(m => {
+                        html += `
+                        <tr>
+                            <td>${m.device_id}</td>
+                            <td>${m.device_type}</td>
+                            <td>${m.value}</td>
+                            <td>${m.timestamp}</td>
+                        </tr>
+                        `;
+                    });
+                    
+                    html += '</tbody></table>';
+                }
+                
+                document.getElementById('data-container').innerHTML = html;
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('data-container').innerHTML = 
+                    `<div class="alert alert-danger mt-3">Error: ${error.message}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>

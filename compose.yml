@@ -25,7 +25,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ${DB_VOLUME:-postgres-data-$(date +%Y%m%d_%H%M%S)}:/var/lib/postgresql/data
     networks:
       - building-network
 
@@ -53,6 +53,32 @@ services:
       - MQTT_BROKER=mqtt-broker
     networks:
       - building-network
+
+  # Frontend Dashboard
+  frontend:
+    build: ./frontend
+    container_name: building-dashboard
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - subscriber
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=building_data
+      - DB_USER=building_user
+      - DB_PASSWORD=building_password
+      - FLASK_DEBUG=1
+    networks:
+      - building-network
+    develop:
+      watch:
+        - path: ./frontend/app.py
+          action: sync+restart
+          target: /app
+        - path: ./frontend/templates/
+          action: sync
+          target: /app
 
 networks:
   building-network:
