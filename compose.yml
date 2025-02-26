@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MQTT Broker
+  mqtt-broker:
+    build: ./mosquitto
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - building-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: building_user
+      POSTGRES_PASSWORD: building_password
+      POSTGRES_DB: building_data
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - building-network
+
+  # Sensor Publishers
+  publishers:
+    build: ./publishers
+    container_name: sensor-publishers
+    depends_on:
+      - mqtt-broker
+    networks:
+      - building-network
+
+  # Building Management System Subscriber
+  subscriber:
+    build: ./subscriber
+    container_name: building-subscriber
+    depends_on:
+      - mqtt-broker
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=building_data
+      - DB_USER=building_user
+      - DB_PASSWORD=building_password
+      - MQTT_BROKER=mqtt-broker
+    networks:
+      - building-network
+
+networks:
+  building-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
