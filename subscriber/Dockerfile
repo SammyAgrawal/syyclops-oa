@@ -7,4 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY db_models.py BMS.py ./
 
-CMD ["python", "BMS.py"]
+#CMD ["python", "BMS.py"]
+CMD ["/bin/bash"]

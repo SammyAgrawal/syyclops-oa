@@ -22,13 +22,13 @@ class BuildingManagementSystem:
         self.client.on_message = self.on_message
         self.connected = False
     
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, properties=None):
         """Callback when connected to MQTT broker"""
         if rc == 0:
             print(f"Connected to MQTT broker at {MQTT_BROKER}")
             self.connected = True
             # Subscribe to the building sensors topic
-            client.subscribe(MQTT_TOPIC)
+            self.client.subscribe(MQTT_TOPIC)
             print(f"Subscribed to topic: {MQTT_TOPIC}")
         else:
             print(f"Failed to connect to MQTT broker with result code {rc}")
