@@ -6,19 +6,12 @@ import logging.handlers
 from datetime import datetime
 import time
 
-# Configure logging
+# Configure logging to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger('mqtt_publisher')
-logger.setLevel(logging.INFO)
-
-# Create a unique log file name with timestamp
-timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-log_file = f'/app/logs/mqtt_{timestamp}.log'
-
-# Create handler with the specified log file
-handler = logging.FileHandler(log_file)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 # MQTT Publisher for devices
 class DevicePublisher:

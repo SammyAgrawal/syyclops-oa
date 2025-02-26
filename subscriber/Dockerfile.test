@@ -1,0 +1,18 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install vim and other useful tools
+RUN apt-get update && apt-get install -y \
+    vim \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy your Python files
+COPY db_models.py BMS.py ./
+
+# Use bash as default
+CMD ["/bin/bash"]

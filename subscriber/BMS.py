@@ -177,7 +177,7 @@ def get_device_timeseries(session, device_id, field, start_time, end_time):
 if __name__ == "__main__":
     # Allow time for the database and broker to start up
     print("Waiting for services to start...")
-    time.sleep(15)
+    time.sleep(10)
     
     # Create and run the Building Management System
     bms = BuildingManagementSystem()
