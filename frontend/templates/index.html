@@ -41,7 +41,7 @@
                                 <select class="form-select" id="zone-select" name="zone_id" required>
                                     <option value="">Choose a zone...</option>
                                     {% for zone in zones %}
-                                    <option value="{{ zone[0] }}">{{ zone[1] }}</option>
+                                    <option value="{{ zone[0] }}">{{ zone[1] }} ({{ zone[2] }} sq ft)</option>
                                     {% endfor %}
                                 </select>
                             </div>

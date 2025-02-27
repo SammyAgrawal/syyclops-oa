@@ -7,9 +7,11 @@ from sqlalchemy.orm import Session
 from db_models import init_db, Device, Measurement
 
 # Get MQTT broker details from environment
+# because of shared network, internal DNS lookup allows finding container service by name
+# so mqtt-broker: port connects to that process. 
 MQTT_BROKER = os.environ.get("MQTT_BROKER", "mqtt-broker")
 MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
-MQTT_TOPIC = "building/sensors/#"  # Subscribe to all sensor topics
+MQTT_TOPIC = "hyatt-place/sensors/#"  # Subscribe to all sensor topics
 
 class BuildingManagementSystem:
     def __init__(self):
@@ -55,6 +57,19 @@ class BuildingManagementSystem:
             print(f"Error decoding JSON payload: {e}")
         except Exception as e:
             print(f"Error processing message: {e}")
+
+    def clean_data(self, timestamp_str, reading, zone_id):
+        # Convert timestamp string to datetime
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str)
+        except (ValueError, TypeError):
+            timestamp = datetime.now()  # Fallback to current time
+        
+        zone_id = max(0, int(zone_id))
+        # could implement some check if reading in valid range, if NULL set to median value, etc
+
+        return timestamp, reading, zone_id
+        
     
     def process_measurement(self, data):
         """Process and store measurement data in the database"""
@@ -69,12 +84,8 @@ class BuildingManagementSystem:
             timestamp_str = data.get('timestamp')
             field = data.get('field')
             unit = data.get('unit')
-            
-            # Convert timestamp string to datetime
-            try:
-                timestamp = datetime.fromisoformat(timestamp_str)
-            except (ValueError, TypeError):
-                timestamp = datetime.now()  # Fallback to current time
+
+            timestamp, reading, zone_id = self.clean_data(timestamp_str, reading, zone_id)
             
             # Check if device exists in the database
             device = session.query(Device).filter_by(id=device_id).first()
@@ -151,7 +162,7 @@ class BuildingManagementSystem:
         else:
             print("Could not start the Building Management System due to connection issues")
 
-# Sample query methods that could be used for analysis
+# Sample functions that could be integrated into frontend; not yet completed. 
 def get_zone_average_temperature(session, zone_id, start_time, end_time):
     """Get the average temperature for a zone during a specific time period"""
     from sqlalchemy import func

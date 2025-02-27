@@ -13,6 +13,18 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD", "building_password")
 # Create SQLAlchemy base
 Base = declarative_base()
 
+
+"""
+
+System Design:
+Imagine each building in the client's portfolio; the building is comprised of a set of zones (rooms, thermal divisions, floors, etc.)
+Each zone is comprised of a set of devices (sensors, actuators, etc.)
+Each device has a set of measurements (temperature, humidity, etc.)
+
+
+"""
+
+
 # Define the Zone model
 class Zone(Base):
     __tablename__ = 'zones'
@@ -20,12 +32,13 @@ class Zone(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     description = Column(String(255))
+    square_footage = Column(Integer)  # Added square footage property
     
     # Relationships
     devices = relationship("Device", back_populates="zone")
     
     def __repr__(self):
-        return f"<Zone(id={self.id}, name='{self.name}')>"
+        return f"<Zone(id={self.id}, name='{self.name}', square_footage={self.square_footage})>"
 
 # Define the Device model
 class Device(Base):
@@ -85,9 +98,9 @@ def init_db():
             if zone_count == 0:
                 print("Initializing zones...")
                 zones = [
-                    Zone(id=1, name="Office Area", description="Main office workspace"),
-                    Zone(id=2, name="Conference Rooms", description="Meeting and conference areas"),
-                    Zone(id=3, name="Common Areas", description="Hallways, lobby, and break rooms")
+                    Zone(id=1, name="Office Area", description="Main office workspace", square_footage=2500),
+                    Zone(id=2, name="Conference Rooms", description="Meeting and conference areas", square_footage=1200),
+                    Zone(id=3, name="Common Areas", description="Hallways, lobby, and break rooms", square_footage=1800)
                 ]
                 session.add_all(zones)
                 session.commit()

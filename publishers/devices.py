@@ -7,6 +7,7 @@ class Device:
         self._device_id = device_id
         self._zone_id = zone_id
         self._measurement_info = measurement_fields
+        self.building_id = "hyatt-place"
     
     def generate_message(self):
         raise NotImplementedError("Subclasses must implement this method")

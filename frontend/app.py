@@ -23,7 +23,7 @@ def get_db_session():
 def index():
     # Get all zones for the dropdown
     session = get_db_session()
-    zones = session.execute(text("SELECT id, name FROM zones")).fetchall()
+    zones = session.execute(text("SELECT id, name, square_footage FROM zones")).fetchall()
     session.close()
     return render_template('index.html', zones=zones)
 
@@ -35,8 +35,8 @@ def zone_data():
     
     session = get_db_session()
     
-    # Get zone name
-    zone = session.execute(text("SELECT name FROM zones WHERE id = :zone_id"), 
+    # Get zone name and square footage
+    zone = session.execute(text("SELECT name, square_footage FROM zones WHERE id = :zone_id"), 
                           {"zone_id": zone_id}).fetchone()
     
     # Get recent measurements for devices in the selected zone
@@ -54,6 +54,7 @@ def zone_data():
     
     return jsonify({
         "zone_name": zone[0] if zone else "Unknown Zone",
+        "square_footage": zone[1] if zone else None,
         "measurements": [
             {
                 "id": m[0],

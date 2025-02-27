@@ -76,7 +76,7 @@ def main():
     broker_host = os.environ.get("MQTT_BROKER", "mqtt-broker")
     
     # Create publisher
-    publisher = DevicePublisher(broker_host)
+    publisher = DevicePublisher(broker_host, topic_prefix="hyatt-place/sensors")
     
     # Create multiple devices across different zones
     # Zone 1 (Office area)
