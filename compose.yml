@@ -23,7 +23,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${DB_VOLUME:-postgres-data}:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - building-network
 
@@ -57,7 +57,7 @@ services:
     build: ./frontend
     container_name: building-dashboard
     ports:
-      - "5000:5000"
+      - "5002:5000"
     depends_on:
       - postgres
       - subscriber
