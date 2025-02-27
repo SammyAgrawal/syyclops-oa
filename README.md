@@ -9,6 +9,8 @@ We define the data-generating process. Namely, we define an abstract "Device" cl
 subscriber:
 The central BMS class simulates the message receiver whose role it is to process and store the incoming streams of sensor data. It connects to the MQTT broker and subscribes to topic pertaining to its specific building property. One could imagine same system carrying messages for many buildings. Then it filters relevant messages, cleans them to ensure validity (or set fallback values), and then commits them to a POSTGRES database. 
 
+![Alt text](database_image.png "Data being logged")
+
 Database Scheme: We imagine a table of buildings that connect to floor plans, metadata, etc. One property of each building is a list of zones (rooms, thermal divisions, floors, etc.).
 Each zone is comprised of a set of devices (each with a defined subclass of Device, as defined in publishsers). Each device has a set of measurements (temperature, humidity, etc.) that stored in its own table. 
 
