@@ -22,6 +22,18 @@
             display: none;
             margin-top: 20px;
         }
+        .floorplan-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            height: 100%;
+        }
+        .floorplan-image {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +71,14 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Floorplan Column -->
+            <div class="col-md-6">
+                <div class="floorplan-container">
+                    <h5>Building Floorplan</h5>
+                    <img src="{{ url_for('static', filename='images/floorplan.png') }}" alt="Building Floorplan" class="floorplan-image">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -91,6 +111,7 @@
                 
                 // Display data
                 let html = `<h4 class="mt-4">Data for ${data.zone_name}</h4>`;
+                html += `<p>Square Footage: ${data.square_footage} sq ft</p>`;
                 
                 if (data.measurements.length === 0) {
                     html += '<p>No measurements found for this zone.</p>';
@@ -99,6 +120,7 @@
                     <table class="table table-striped mt-3">
                         <thead>
                             <tr>
+                                <th>Building</th>
                                 <th>Device ID</th>
                                 <th>Type</th>
                                 <th>Value</th>
@@ -111,6 +133,7 @@
                     data.measurements.forEach(m => {
                         html += `
                         <tr>
+                            <td>hyatt-place</td>
                             <td>${m.device_id}</td>
                             <td>${m.device_type}</td>
                             <td>${m.value}</td>

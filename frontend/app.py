@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 import os
 import time
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 # Database connection
 DB_USER = os.environ.get('DB_USER', 'building_user')
