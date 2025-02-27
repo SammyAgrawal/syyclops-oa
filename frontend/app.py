@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 import os
 import time
@@ -23,7 +23,7 @@ def get_db_session():
 def index():
     # Get all zones for the dropdown
     session = get_db_session()
-    zones = session.execute("SELECT id, name FROM zones").fetchall()
+    zones = session.execute(text("SELECT id, name FROM zones")).fetchall()
     session.close()
     return render_template('index.html', zones=zones)
 
@@ -36,17 +36,18 @@ def zone_data():
     session = get_db_session()
     
     # Get zone name
-    zone = session.execute(f"SELECT name FROM zones WHERE id = {zone_id}").fetchone()
+    zone = session.execute(text("SELECT name FROM zones WHERE id = :zone_id"), 
+                          {"zone_id": zone_id}).fetchone()
     
     # Get recent measurements for devices in the selected zone
-    query = """
+    query = text("""
     SELECT m.id, d.id as device_id, d.device_type, m.value, m.timestamp
     FROM measurements m
     JOIN devices d ON m.device_id = d.id
     WHERE d.zone_id = :zone_id
     ORDER BY m.timestamp DESC
     LIMIT 10
-    """
+    """)
     
     measurements = session.execute(query, {"zone_id": zone_id}).fetchall()
     session.close()
